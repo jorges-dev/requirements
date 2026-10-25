@@ -1,0 +1,39 @@
+@startuml
+title Exemplo 1 — catraca
+
+hide empty description
+left to right direction
+
+state Trancado #FFF3E0;line:orange	
+state Liberado #E8F5F0;line:green
+
+[*] --> Trancado
+
+Trancado --> Liberado : Moeda / Liberado
+Liberado --> Trancado : Empurrar / Trancado
+
+Trancado --> Trancado : Empurrar / Alarme
+Liberado --> Liberado : Moeda / Muito Obrigado!
+@enduml
+
+@startuml
+title Exemplo 3 — Chamado de Suporte
+
+hide empty description
+left to right direction
+
+state Aberto #FFFAF0;line:black
+state Em Atendimento #00BFFF;line:blue
+state Aguardando Cliente #FF7F00;line:orange
+state Resolvido #E8F5F0;line:green
+state Fechado #FFEFDB;line:linen
+
+[*] --> Aberto
+
+Aberto --> Em atendimento : Moeda / Liberado
+Liberado --> Trancado : Empurrar / Trancado
+
+Trancado --> Trancado : Empurrar / Alarme
+Liberado --> Liberado : Moeda / Muito Obrigado!
+@enduml
+
