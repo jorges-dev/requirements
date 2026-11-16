@@ -1,0 +1,54 @@
+@startchen
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam BackgroundColor white
+<style>
+chenEntity { BackgroundColor #DCE8F2; LineColor #2E4A62 }
+chenRelationship { BackgroundColor #FDFDFD; LineColor #2E4A62 }
+chenAttribute { BackgroundColor #FDFDFD; LineColor #2E4A62 }
+chenEntityAttribute { BackgroundColor #FDFDFD; LineColor #2E4A62 }
+</style>
+
+entity ALUNO {
+  matricula <<key>>
+  nome
+  email
+  dataNascimento
+}
+entity CURSO {
+  codigo <<key>>
+  nome
+  descricao
+  cargaHoraria
+}
+entity PROFESSOR {
+  matricula <<key>>
+  nome
+  email
+  areaEspecializacao
+}
+entity AULA {
+  codigo <<key>>
+  titulo
+  descricao
+  duracao
+}
+
+relationship "MATRICULA-SE" as MATRICULA_SE {
+  dataMatricula
+  situacao
+  notaFinal
+}
+relationship MINISTRA {
+}
+relationship POSSUI {
+}
+
+ALUNO -N- MATRICULA_SE
+MATRICULA_SE -N- CURSO
+PROFESSOR -1- MINISTRA
+MINISTRA -N- CURSO
+CURSO -1- POSSUI
+POSSUI -N- AULA
+@endchen

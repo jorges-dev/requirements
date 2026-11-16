@@ -1,0 +1,185 @@
+' =====================================================================
+'  MER - PLATAFORMA DE CURSOS ONLINE (notação de Peter Chen)
+'  Arquivo comentado para estudo da linguagem PlantUML
+' =====================================================================
+'
+' COMO LER ESTE ARQUIVO
+' - Toda linha que começa com apóstrofo (') é um COMENTÁRIO.
+'   O PlantUML ignora essas linhas; elas servem só para quem lê o código.
+' - Comentário de várias linhas também pode ser feito com /' ... '/
+'
+' COMO GERAR O DIAGRAMA (no terminal, na pasta deste arquivo)
+'   plantuml -tpng mer_cursos_comentado.puml   -> gera uma imagem PNG
+'   plantuml -tsvg mer_cursos_comentado.puml   -> gera um SVG (vetorial)
+' =====================================================================
+
+
+' ---------------------------------------------------------------------
+' PASSO 1 - ABRIR O DIAGRAMA
+' ---------------------------------------------------------------------
+' Todo diagrama PlantUML fica entre uma linha de início e uma de fim.
+' O tipo de diagrama é definido pela palavra depois do @start:
+'   @startuml   -> diagramas UML (classes, atividades, sequência, estados)
+'   @startchen  -> Modelo Entidade-Relacionamento na notação de Chen
+' Como o exercício pede a notação trabalhada em aula (Chen), usamos:
+@startchen
+
+
+' ---------------------------------------------------------------------
+' PASSO 2 - CONFIGURAR A APARÊNCIA (opcional)
+' ---------------------------------------------------------------------
+' "skinparam" muda opções visuais gerais do desenho.
+' Nada disso altera o significado do modelo; é só aparência.
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam BackgroundColor white
+
+' O bloco <style> ... </style> define cores por tipo de elemento,
+' parecido com o CSS de uma página web:
+'   chenEntity          -> retângulos (entidades)
+'   chenRelationship    -> losangos (relacionamentos)
+'   chenAttribute       -> elipses dos atributos de relacionamento
+'   chenEntityAttribute -> elipses dos atributos de entidade
+' As cores são escritas em hexadecimal (#RRGGBB).
+<style>
+chenEntity { BackgroundColor #DCE8F2; LineColor #2E4A62 }
+chenRelationship { BackgroundColor #FDFDFD; LineColor #2E4A62 }
+chenAttribute { BackgroundColor #FDFDFD; LineColor #2E4A62 }
+chenEntityAttribute { BackgroundColor #FDFDFD; LineColor #2E4A62 }
+</style>
+
+
+' ---------------------------------------------------------------------
+' PASSO 3 - DECLARAR AS ENTIDADES (retângulos)
+' ---------------------------------------------------------------------
+' Sintaxe:
+'   entity NOME {
+'     atributo1
+'     atributo2
+'   }
+' - A palavra "entity" cria uma ENTIDADE (desenhada como retângulo).
+' - Cada linha dentro das chaves vira um ATRIBUTO (desenhado como elipse
+'   ligada ao retângulo).
+' - <<key>> marca o ATRIBUTO IDENTIFICADOR. O PlantUML desenha esse
+'   atributo SUBLINHADO, que é a convenção da notação de Chen.
+' - Os nomes dos atributos ficam sem acento e sem espaço (camelCase:
+'   dataNascimento), para evitar problemas na leitura do arquivo.
+
+' ALUNO: identificado pela matrícula (identificador natural).
+entity ALUNO {
+  matricula <<key>>
+  nome
+  email
+  dataNascimento
+}
+
+' CURSO: identificado pelo código.
+entity CURSO {
+  codigo <<key>>
+  nome
+  descricao
+  cargaHoraria
+}
+
+' PROFESSOR: também identificado por matrícula.
+' Não há conflito com a matrícula do aluno: cada atributo pertence
+' à sua própria entidade.
+entity PROFESSOR {
+  matricula <<key>>
+  nome
+  email
+  areaEspecializacao
+}
+
+' AULA: identificada pelo código.
+entity AULA {
+  codigo <<key>>
+  titulo
+  descricao
+  duracao
+}
+
+
+' ---------------------------------------------------------------------
+' PASSO 4 - DECLARAR OS RELACIONAMENTOS (losangos)
+' ---------------------------------------------------------------------
+' Sintaxe:
+'   relationship NOME {
+'     atributoDoRelacionamento
+'   }
+' - "relationship" cria um RELACIONAMENTO (desenhado como losango).
+' - Pela aula, o relacionamento deve ter nome de VERBO.
+' - Quando o relacionamento não tem atributos, as chaves ficam vazias.
+' - Para mostrar um nome com hífen ou espaço, usa-se um apelido:
+'     relationship "TEXTO EXIBIDO" as NOME_INTERNO { ... }
+'   O texto entre aspas aparece no desenho; o nome depois de "as"
+'   é usado no resto do código para fazer as ligações.
+
+' MATRICULA-SE: relacionamento N:N entre ALUNO e CURSO.
+' DECISÃO PRINCIPAL DO EXERCÍCIO: dataMatricula, situacao e notaFinal
+' ficam no PRÓPRIO RELACIONAMENTO, porque não descrevem só o aluno nem
+' só o curso, e sim a matrícula de UM aluno em UM curso.
+' (Ex.: o mesmo aluno tem uma nota em cada curso.)
+relationship "MATRICULA-SE" as MATRICULA_SE {
+  dataMatricula
+  situacao
+  notaFinal
+}
+
+' MINISTRA: liga PROFESSOR a CURSO. Não tem atributos próprios.
+relationship MINISTRA {
+}
+
+' POSSUI: liga CURSO a AULA. Também sem atributos.
+relationship POSSUI {
+}
+
+
+' ---------------------------------------------------------------------
+' PASSO 5 - LIGAR ENTIDADES AOS RELACIONAMENTOS (com cardinalidade)
+' ---------------------------------------------------------------------
+' Sintaxe:
+'   ENTIDADE -CARDINALIDADE- RELACIONAMENTO
+' - Os hífens desenham a linha.
+' - O valor entre os hífens (1 ou N) é a CARDINALIDADE, escrita junto
+'   da linha, perto da entidade daquele lado.
+' - Cada relacionamento binário precisa de DUAS ligações: uma para
+'   cada entidade que ele une.
+'
+' Como ler a cardinalidade: escolha uma ocorrência de um lado e pergunte
+' "com quantas do outro lado ela pode se relacionar?".
+
+' ALUNO N:N CURSO
+' Um aluno se matricula em vários cursos (N do lado do CURSO)
+' e um curso tem vários alunos matriculados (N do lado do ALUNO).
+ALUNO -N- MATRICULA_SE
+MATRICULA_SE -N- CURSO
+
+' PROFESSOR 1:N CURSO
+' Cada curso é ministrado por UM professor (1 do lado do PROFESSOR)
+' e um professor ministra VÁRIOS cursos (N do lado do CURSO).
+PROFESSOR -1- MINISTRA
+MINISTRA -N- CURSO
+
+' CURSO 1:N AULA
+' Cada aula pertence a UM curso (1 do lado do CURSO)
+' e um curso possui VÁRIAS aulas (N do lado da AULA).
+CURSO -1- POSSUI
+POSSUI -N- AULA
+
+
+' ---------------------------------------------------------------------
+' PASSO 6 - FECHAR O DIAGRAMA
+' ---------------------------------------------------------------------
+' Todo @start... precisa do @end... correspondente.
+@endchen
+
+' =====================================================================
+' VERIFICAÇÃO - O MODELO RESPONDE ÀS PERGUNTAS DO EXERCÍCIO?
+' 1. Cursos de um aluno ............ ALUNO -> MATRICULA-SE -> CURSO
+' 2. Alunos de um curso ............ CURSO -> MATRICULA-SE -> ALUNO
+' 3. Professor de cada curso ....... CURSO -> MINISTRA -> PROFESSOR
+' 4. Aulas de um curso ............. CURSO -> POSSUI -> AULA
+' 5. Nota final de um aluno no curso  atributo notaFinal de MATRICULA-SE
+' =====================================================================
